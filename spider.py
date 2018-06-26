@@ -11,6 +11,7 @@ class Spider():
     pattern_title = '<h2 class="title">([\s\S]*?)</h2>'
     dir_prefix = r'D:/BaiduNetdiskDownload/runyuanzs/runyuanzs/www.runyuanzs.com/'
     dir_image = r'D:/BaiduNetdiskDownload/runyuanzs/runyuanzs/www.runyuanzs.com/images/'
+    title = ''
 
     def __get_urls(self):
         url = 'file:///D:/BaiduNetdiskDownload/runyuanzs/runyuanzs/www.runyuanzs.com/jzxl/xgt/'
@@ -23,11 +24,13 @@ class Spider():
     def __fetch_content(self, url):
         r = request.urlopen(url)
         contents = r.read()
-        contents = str(contents)
+        contents = str(contents, encoding='gbk')
         return contents
 
     def __analysis(self, contents):
         result = re.findall(self.root_pattern, contents)
+        title = str(re.findall(self.pattern_title, contents)[0])
+        self.title = title.replace('\u3000', '')
         return result
 
     def go(self):
@@ -37,8 +40,8 @@ class Spider():
             data = self.__analysis(contents)
 
             # 新建目录
-            url_suffix = url[-9:-5]
-            dir_new = os.path.join(self.dir_image, url_suffix)
+            # url_suffix = url[-9:-5]
+            dir_new = os.path.join(self.dir_image, self.title)
             os.makedirs(dir_new, exist_ok=True)
 
             for image_suffix in data:
@@ -55,3 +58,4 @@ class Spider():
 
 spider = Spider()
 spider.go()
+print("File Copy Successful!!!")
